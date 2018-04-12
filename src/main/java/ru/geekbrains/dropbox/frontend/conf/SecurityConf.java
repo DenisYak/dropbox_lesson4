@@ -35,10 +35,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .antMatchers("/vaadinServlet/", "/VAADIN/", "/PUSH/", "/UIDL/", "/login", "/login/", "/register", "/environment").permitAll()
                 .antMatchers("/").fullyAuthenticated()
                 .and()
-                .csrf().disable();
-                /*.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login/"))
+                .csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login/"))
                 .and()
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));*/
+                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
     }
 
     @Bean
