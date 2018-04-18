@@ -8,6 +8,7 @@ import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.geekbrains.dropbox.frontend.service.FilesService;
 
 
 import javax.annotation.PostConstruct;
@@ -16,10 +17,9 @@ import javax.annotation.PostConstruct;
 public class LoginView extends VerticalLayout implements View {
 
     @Autowired
-    Navigator navigator;
+    private FilesService filesService;
 
-    @PostConstruct
-    void init() {
+    public LoginView() {
         TextField login = new TextField();
         login.setPlaceholder("Login");
         PasswordField pass = new PasswordField();
@@ -28,10 +28,11 @@ public class LoginView extends VerticalLayout implements View {
             UsernamePasswordAuthenticationToken token =
                     new UsernamePasswordAuthenticationToken(login.getValue(), pass.getValue());
             SecurityContextHolder.getContext().setAuthentication(token);
-            navigator.navigateTo("main");
+//            navigator.navigateTo("main");
+            getUI().getNavigator().navigateTo("");
         });
         addComponents(login, pass, btnLogin);
-        getUI().setContent(this);
+//        getUI().setContent(this);
 
 
     }

@@ -1,6 +1,7 @@
 package ru.geekbrains.dropbox.frontend.ui.view;
 
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.VaadinRequest;
@@ -8,12 +9,12 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.ItemClickListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ru.geekbrains.dropbox.frontend.service.FilesService;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
 
-@SpringView(name = "main")
+@SpringView(name = "")
 public class MainView extends VerticalLayout implements View {
 
     @Autowired
@@ -26,10 +27,9 @@ public class MainView extends VerticalLayout implements View {
     private Panel pnlActions = new Panel();
 
 
-    @PostConstruct
-    public void init() {
-        VerticalLayout layoutSource = new VerticalLayout();
-        layoutSource.setSizeUndefined();
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        setSizeUndefined();
 
         gridFiles.addColumn(File::getName).setCaption("File");
         gridFiles.setSizeFull();
@@ -84,8 +84,24 @@ public class MainView extends VerticalLayout implements View {
         pnlActions.setSizeUndefined();
         pnlActions.setContent(layoutActions);
         layoutActions.addComponents(uploadFile, btnDelete, btnDownload);
-        layoutSource.addComponents(gridFiles, pnlActions);
-//        this.setContent(layoutSource);
+        addComponents(gridFiles, pnlActions);
+        addComponent(new Button("Выход " + SecurityContextHolder.getContext().getAuthentication().getName(), clickEvent -> {
+            //getUI().getPage().open("/logout", null);
+            getUI().getPage().setLocation("/logout");
+        }));
+
+        HorizontalLayout layoutFilter = new HorizontalLayout();
+        TextField textFilter = new TextField();
+        Button btnFilterName = new Button("Поиск", clickEvent -> {
+            gridFiles.setItems(
+                    filesService
+                            .getFileList()
+                            .stream()
+                            .filter(x -> x.getName().contains(textFilter.getValue()))
+            );
+        });
+        layoutFilter.addComponents(textFilter, btnFilterName);
+        addComponent(layoutFilter);
     }
 
     private void startedUpload(Upload.StartedEvent event) {
