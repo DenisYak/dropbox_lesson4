@@ -13,6 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import ru.geekbrains.dropbox.frontend.service.FilesService;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringView(name = "")
 public class MainView extends VerticalLayout implements View {
@@ -90,18 +93,67 @@ public class MainView extends VerticalLayout implements View {
             getUI().getPage().setLocation("/logout");
         }));
 
-        HorizontalLayout layoutFilter = new HorizontalLayout();
-        TextField textFilter = new TextField();
-        Button btnFilterName = new Button("Поиск", clickEvent -> {
+///
+        VerticalLayout layoutFilterFields = new VerticalLayout();
+        TextField firstFilter = new TextField();
+        layoutFilterFields.addComponent(firstFilter);
+        List<TextField> filters = new ArrayList<>();
+        filters.add(firstFilter);
+
+        HorizontalLayout layoutFilterButtons = new HorizontalLayout();
+        Button btnAddFilter = new Button("+ filter", clickEvent -> {
+            filters.add(new TextField());
+            layoutFilterFields.addComponent(filters.get(filters.size() - 1));
+            });
+        Button btnRemoveFilter = new Button("- filter", clickEvent -> {
+            if ((filters.size() - 1) > 0) {
+                filters.remove(filters.size() - 1);
+                layoutFilterFields.removeComponent(filters.get(filters.size() - 1));
+                }
+            });
+        Button btnClearAll = new Button("Clear all", clickEvent -> {
+            filters.clear();
+            layoutFilterFields.removeAllComponents();
+            filters.add(new TextField());
+            layoutFilterFields.addComponent(filters.get(filters.size() - 1));
+            });
+        layoutFilterButtons.addComponents(btnAddFilter,btnRemoveFilter,btnClearAll);
+        addComponent(layoutFilterButtons);
+        addComponent(layoutFilterFields);
+
+        List<File> result = new ArrayList<>();
+        for (TextField filter : filters) {
+//            result.add(filesService.getFileList().stream().filter(x ->
+//                    x.getName().contains(filter.getValue())).collect(Collectors.toList()));
+        }
+
+        addComponent(new Button("Search", clickEvent -> {
             gridFiles.setItems(
-                    filesService
-                            .getFileList()
-                            .stream()
-                            .filter(x -> x.getName().contains(textFilter.getValue()))
-            );
-        });
-        layoutFilter.addComponents(textFilter, btnFilterName);
-        addComponent(layoutFilter);
+                    /*filesService.getFileList().stream().filter(x -> x.getName().contains(textFilter.getValue()))*/
+                            /*filesService.getFileList().stream().filter(x -> x.getName().contains(
+                           filters.stream().map(f -> f.getValue()).collect()))*/
+                                    /*filters.stream().map(f -> f.getValue()).forEach(f ->
++                            filesService.getFileList().stream().filter(x -> x.getName().contains(f))));*/
+
+                                                    );
+            }));
+
+///
+
+
+
+//        HorizontalLayout layoutFilter = new HorizontalLayout();
+//        TextField textFilter = new TextField();
+//        Button btnFilterName = new Button("Поиск", clickEvent -> {
+//            gridFiles.setItems(
+//                    filesService
+//                            .getFileList()
+//                            .stream()
+//                            .filter(x -> x.getName().contains(textFilter.getValue()))
+//            );
+//        });
+//        layoutFilter.addComponents(textFilter, btnFilterName);
+//        addComponent(layoutFilter);
     }
 
     private void startedUpload(Upload.StartedEvent event) {
